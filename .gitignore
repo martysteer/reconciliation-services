@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+
+# Data (built at docker build time)
+*.db
+*.db-shm
+*.db-wal
+
+# Environment (may contain custom config)
+.env
+
+# OS
+.DS_Store
+
+# IDE
+.idea/
+.vscode/
