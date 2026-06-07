@@ -1,0 +1,32 @@
+{
+  "title": "ISO 639 Language Codes",
+  "description": "ISO 639 language codes from the Library of Congress and SIL International",
+  "license": "Public Domain",
+  "license_url": "https://www.loc.gov/legal/",
+  "source": "Library of Congress & SIL International",
+  "source_url": "https://www.loc.gov/standards/iso639-2/",
+  "databases": {
+    "iso639": {
+      "tables": {
+        "languages": {
+          "title": "ISO 639 Language Codes",
+          "description": "Combined ISO 639-2, 639-3, and 639-5 language codes. Use type filter to narrow results.",
+          "plugins": {
+            "datasette-reconcile": {
+              "id_field": "id",
+              "name_field": "name",
+              "type_field": "type",
+              "type_default": [
+                {"id": "ISO 639-3", "name": "ISO 639-3: All Known Languages (~7500 codes, SIL International)"},
+                {"id": "ISO 639-2", "name": "ISO 639-2: Major Languages (~500 codes, Library of Congress)"},
+                {"id": "ISO 639-5", "name": "ISO 639-5: Language Families (~50 codes, Library of Congress)"}
+              ],
+              "max_limit": 10,
+              "service_name": "ISO 639 Language Codes"
+            }
+          }
+        }
+      }
+    }
+  }
+}
