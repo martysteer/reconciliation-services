@@ -1,0 +1,217 @@
+{
+  "$schema": "https://datasette.io/metadata.schema.json",
+  "title": "FAST (Faceted Application of Subject Terminology)",
+  "description": "OCLC's FAST vocabulary for subject headings reconciliation. Compatible with OpenRefine reconciliation API.",
+  "license": "ODC-BY",
+  "license_url": "https://www.oclc.org/research/areas/data-science/fast.html",
+  "source": "OCLC FAST",
+  "source_url": "https://www.oclc.org/research/areas/data-science/fast.html",
+  "databases": {
+    "fast": {
+      "title": "FAST Vocabularies",
+      "description": "All FAST facets: Topical, Personal, Corporate, Geographic, Event, Chronological, Title, Form/Genre, Meeting",
+      "tables": {
+        "FAST": {
+          "title": "FAST (All Facets)",
+          "description": "Combined FAST vocabulary - all facets in one table. Use type filter to search specific facets.",
+          "fts_table": "FAST_fts",
+          "fts_pk": "rowid",
+          "plugins": {
+            "datasette-reconcile": {
+              "id_field": "id",
+              "name_field": "name",
+              "type_field": "type",
+              "type_default": [
+                {"id": "Topical", "name": "Topical (subjects, concepts)"},
+                {"id": "Personal", "name": "Personal (people, authors)"},
+                {"id": "Corporate", "name": "Corporate (organizations)"},
+                {"id": "Geographic", "name": "Geographic (places)"},
+                {"id": "Event", "name": "Event (wars, historical events)"},
+                {"id": "Chronological", "name": "Chronological (time periods)"},
+                {"id": "Title", "name": "Title (works, publications)"},
+                {"id": "FormGenre", "name": "Form/Genre (formats, genres)"},
+                {"id": "Meeting", "name": "Meeting (conferences)"}
+              ],
+              "max_limit": 10,
+              "service_name": "FAST Reconciliation Service",
+              "identifierSpace": "http://id.worldcat.org/fast/",
+              "schemaSpace": "http://id.worldcat.org/fast/ontology/1.0/#702",
+              "view_url": "http://id.worldcat.org/fast/{{id}}"
+            }
+          }
+        },
+        "FASTTopical": {
+          "title": "FAST Topical",
+          "description": "Topical subject headings (general subjects, concepts, activities)",
+          "fts_table": "FASTTopical_fts",
+          "fts_pk": "rowid",
+          "plugins": {
+            "datasette-reconcile": {
+              "id_field": "id",
+              "name_field": "name",
+              "type_field": "type",
+              "type_default": [{"id": "Topical", "name": "Topical Subject"}],
+              "max_limit": 10,
+              "service_name": "FAST Topical Reconciliation",
+              "identifierSpace": "http://id.worldcat.org/fast/",
+              "schemaSpace": "http://schema.org/Thing",
+              "view_url": "http://id.worldcat.org/fast/{{id}}"
+            }
+          }
+        },
+        "FASTPersonal": {
+          "title": "FAST Personal Names",
+          "description": "Personal name headings (people, authors, historical figures)",
+          "fts_table": "FASTPersonal_fts",
+          "fts_pk": "rowid",
+          "plugins": {
+            "datasette-reconcile": {
+              "id_field": "id",
+              "name_field": "name",
+              "type_field": "type",
+              "type_default": [{"id": "Personal", "name": "Personal Name"}],
+              "max_limit": 10,
+              "service_name": "FAST Personal Names Reconciliation",
+              "identifierSpace": "http://id.worldcat.org/fast/",
+              "schemaSpace": "http://schema.org/Person",
+              "view_url": "http://id.worldcat.org/fast/{{id}}"
+            }
+          }
+        },
+        "FASTCorporate": {
+          "title": "FAST Corporate Names",
+          "description": "Corporate body headings (organizations, companies, institutions)",
+          "fts_table": "FASTCorporate_fts",
+          "fts_pk": "rowid",
+          "plugins": {
+            "datasette-reconcile": {
+              "id_field": "id",
+              "name_field": "name",
+              "type_field": "type",
+              "type_default": [{"id": "Corporate", "name": "Corporate Name"}],
+              "max_limit": 10,
+              "service_name": "FAST Corporate Names Reconciliation",
+              "identifierSpace": "http://id.worldcat.org/fast/",
+              "schemaSpace": "http://schema.org/Organization",
+              "view_url": "http://id.worldcat.org/fast/{{id}}"
+            }
+          }
+        },
+        "FASTGeographic": {
+          "title": "FAST Geographic Names",
+          "description": "Geographic headings (places, regions, countries)",
+          "fts_table": "FASTGeographic_fts",
+          "fts_pk": "rowid",
+          "plugins": {
+            "datasette-reconcile": {
+              "id_field": "id",
+              "name_field": "name",
+              "type_field": "type",
+              "type_default": [{"id": "Geographic", "name": "Geographic Name"}],
+              "max_limit": 10,
+              "service_name": "FAST Geographic Reconciliation",
+              "identifierSpace": "http://id.worldcat.org/fast/",
+              "schemaSpace": "http://schema.org/Place",
+              "view_url": "http://id.worldcat.org/fast/{{id}}"
+            }
+          }
+        },
+        "FASTEvent": {
+          "title": "FAST Events",
+          "description": "Event headings (wars, conferences, historical events)",
+          "fts_table": "FASTEvent_fts",
+          "fts_pk": "rowid",
+          "plugins": {
+            "datasette-reconcile": {
+              "id_field": "id",
+              "name_field": "name",
+              "type_field": "type",
+              "type_default": [{"id": "Event", "name": "Event"}],
+              "max_limit": 10,
+              "service_name": "FAST Events Reconciliation",
+              "identifierSpace": "http://id.worldcat.org/fast/",
+              "schemaSpace": "http://schema.org/Event",
+              "view_url": "http://id.worldcat.org/fast/{{id}}"
+            }
+          }
+        },
+        "FASTChronological": {
+          "title": "FAST Chronological",
+          "description": "Chronological/time period headings (centuries, eras, date ranges)",
+          "fts_table": "FASTChronological_fts",
+          "fts_pk": "rowid",
+          "plugins": {
+            "datasette-reconcile": {
+              "id_field": "id",
+              "name_field": "name",
+              "type_field": "type",
+              "type_default": [{"id": "Chronological", "name": "Chronological"}],
+              "max_limit": 10,
+              "service_name": "FAST Chronological Reconciliation",
+              "identifierSpace": "http://id.worldcat.org/fast/",
+              "schemaSpace": "http://schema.org/Thing",
+              "view_url": "http://id.worldcat.org/fast/{{id}}"
+            }
+          }
+        },
+        "FASTTitle": {
+          "title": "FAST Titles",
+          "description": "Uniform title headings (works, publications, named documents)",
+          "fts_table": "FASTTitle_fts",
+          "fts_pk": "rowid",
+          "plugins": {
+            "datasette-reconcile": {
+              "id_field": "id",
+              "name_field": "name",
+              "type_field": "type",
+              "type_default": [{"id": "Title", "name": "Title"}],
+              "max_limit": 10,
+              "service_name": "FAST Titles Reconciliation",
+              "identifierSpace": "http://id.worldcat.org/fast/",
+              "schemaSpace": "http://schema.org/CreativeWork",
+              "view_url": "http://id.worldcat.org/fast/{{id}}"
+            }
+          }
+        },
+        "FASTFormGenre": {
+          "title": "FAST Form/Genre",
+          "description": "Form and genre headings (document types, formats, genres)",
+          "fts_table": "FASTFormGenre_fts",
+          "fts_pk": "rowid",
+          "plugins": {
+            "datasette-reconcile": {
+              "id_field": "id",
+              "name_field": "name",
+              "type_field": "type",
+              "type_default": [{"id": "FormGenre", "name": "Form/Genre"}],
+              "max_limit": 10,
+              "service_name": "FAST Form/Genre Reconciliation",
+              "identifierSpace": "http://id.worldcat.org/fast/",
+              "schemaSpace": "http://schema.org/Thing",
+              "view_url": "http://id.worldcat.org/fast/{{id}}"
+            }
+          }
+        },
+        "FASTMeeting": {
+          "title": "FAST Meetings",
+          "description": "Meeting/conference headings (congresses, symposia, recurring meetings)",
+          "fts_table": "FASTMeeting_fts",
+          "fts_pk": "rowid",
+          "plugins": {
+            "datasette-reconcile": {
+              "id_field": "id",
+              "name_field": "name",
+              "type_field": "type",
+              "type_default": [{"id": "Meeting", "name": "Meeting"}],
+              "max_limit": 10,
+              "service_name": "FAST Meetings Reconciliation",
+              "identifierSpace": "http://id.worldcat.org/fast/",
+              "schemaSpace": "http://schema.org/Event",
+              "view_url": "http://id.worldcat.org/fast/{{id}}"
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,34 @@
+# FAST Reconciliation Service - Git Ignore
+# ==============================================
+
+# Virtual environment
+.venv/
+venv/
+env/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# pyenv
+.python-version
+
+# Data directory (all build artifacts)
+data/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Logs
+*.log
