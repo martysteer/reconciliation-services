@@ -1,3 +1,5 @@
+name: recon-isolang
+
 services:
   isolang:
     build: ../services/isolang

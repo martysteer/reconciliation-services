@@ -5,26 +5,24 @@
 #   make up SERVICES="fast geonames"   Start selected services
 #   make build                         Build all images
 #   make down                          Stop all services
-#   make logs                          Tail logs
+#   make logs SERVICES="fast"          Tail one service's logs
 #   make status                        Show running services
 
 SERVICES ?= fast geonames isolang
 
-COMPOSE_FILES := $(foreach s,$(SERVICES),-f compose/$(s).yml)
-
 .PHONY: up down build logs status
 
 up:
-	docker compose $(COMPOSE_FILES) up -d
+	@$(foreach s,$(SERVICES),docker compose -f compose/$(s).yml up -d;)
 
 down:
-	docker compose $(COMPOSE_FILES) down
+	@$(foreach s,$(SERVICES),docker compose -f compose/$(s).yml down;)
 
 build:
-	docker compose $(COMPOSE_FILES) build
+	@$(foreach s,$(SERVICES),docker compose -f compose/$(s).yml build;)
 
 logs:
-	docker compose $(COMPOSE_FILES) logs -f
+	@$(foreach s,$(SERVICES),docker compose -f compose/$(s).yml logs -f;)
 
 status:
-	docker compose $(COMPOSE_FILES) ps
+	@$(foreach s,$(SERVICES),docker compose -f compose/$(s).yml ps;)

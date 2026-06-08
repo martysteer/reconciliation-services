@@ -1,3 +1,5 @@
+name: recon-fast
+
 services:
   fast:
     build: ../services/fast

@@ -1,3 +1,5 @@
+name: recon-geonames
+
 services:
   geonames:
     build: ../services/geonames
