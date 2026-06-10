@@ -11,6 +11,8 @@ All on one port (default 8000):
 | OCLC FAST subject headings | `/fast/FAST/-/reconcile` (+ per-facet endpoints below) |
 | GeoNames geographic features | `/geonames/geonames/-/reconcile` |
 | ISO 639 language codes | `/iso639/languages/-/reconcile` |
+| ISO 15924 script codes | `/iso15924/scripts/-/reconcile` |
+| RBMS Controlled Vocabulary | `/rbmscv/terms/-/reconcile` |
 
 ## Quick Start
 
@@ -47,6 +49,8 @@ All datasets: macOS or Linux with `python3` (3.10+), `curl`, `unzip`, `sqlite3`,
 | Dataset | Build Time | .db Size | Data Source | License |
 |---------|-----------|----------|-------------|---------|
 | isolang | < 2 min | ~3MB | LOC, SIL International | public standards data |
+| iso15924 | < 1 min | < 1MB | Unicode Consortium | freely available data |
+| rbmscv | < 1 min | < 1MB | LOC id.loc.gov / ACRL RBMS | public domain |
 | geonames | ~12 min | ~4GB | GeoNames.org | CC BY 4.0 |
 | fast | 30-60 min | ~1.5GB | OCLC FAST | ODC-BY |
 
