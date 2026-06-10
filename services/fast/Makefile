@@ -13,11 +13,6 @@
 #   make update   - Re-download source data and rebuild
 #   make clean    - Remove database only (quick reset)
 #   make clean-all - Remove everything including downloads and venv
-#
-# Usage (Docker):
-#   Data is downloaded and transformed at IMAGE BUILD time (see Dockerfile);
-#   the runtime container serves the pre-built database directly via datasette
-#   (no make/Java inside the runtime image).
 
 # =============================================================================
 # Configuration (override with environment variables for Docker)
@@ -43,9 +38,6 @@ METADATA_JSON ?= fast.metadata.json
 
 PORT ?= 8001
 
-# Docker mode: when DOCKER=1, skip venv and use system tools
-DOCKER ?=
-
 # FAST facet tables
 FAST_TABLES := FASTChronological FASTCorporate FASTEvent FASTFormGenre \
                FASTGeographic FASTMeeting FASTPersonal FASTTitle FASTTopical
@@ -53,26 +45,16 @@ FAST_TABLES := FASTChronological FASTCorporate FASTEvent FASTFormGenre \
 .PRECIOUS: $(FAST_ZIP)
 
 # =============================================================================
-# Tool paths (venv or system depending on DOCKER mode)
+# Tool paths
 # =============================================================================
-ifdef DOCKER
-  PYTHON := python3
-  PIP := pip
-  DATASETTE := datasette
-  SQLITE_UTILS := sqlite-utils
-  VENV_DONE :=
-  # Use saxon wrapper script (includes xmlresolver jars in classpath)
-  SAXON ?= saxon
-else
-  PYTHON := $(VENV_DIR)/bin/python3
-  PIP := $(VENV_DIR)/bin/pip
-  DATASETTE := $(VENV_DIR)/bin/datasette
-  SQLITE_UTILS := $(VENV_DIR)/bin/sqlite-utils
-  VENV_DONE := $(VENV_DIR)/.done
-  # macOS Homebrew Saxon path
-  SAXON_JAR = $(shell ls /opt/homebrew/opt/saxon/libexec/saxon-he-*.jar 2>/dev/null | grep -v test | grep -v xqj | head -1)
-  SAXON := java -Xmx8g -jar $(SAXON_JAR)
-endif
+PYTHON := $(VENV_DIR)/bin/python3
+PIP := $(VENV_DIR)/bin/pip
+DATASETTE := $(VENV_DIR)/bin/datasette
+SQLITE_UTILS := $(VENV_DIR)/bin/sqlite-utils
+VENV_DONE := $(VENV_DIR)/.done
+# macOS Homebrew Saxon path
+SAXON_JAR = $(shell ls /opt/homebrew/opt/saxon/libexec/saxon-he-*.jar 2>/dev/null | grep -v test | grep -v xqj | head -1)
+SAXON := java -Xmx8g -jar $(SAXON_JAR)
 
 # =============================================================================
 # Stylesheets
@@ -170,7 +152,7 @@ status:
 	@echo "═══════════════════════════════════════════════════════════════"
 	@echo ""
 	@echo "Files:"
-	@if [ -n "$(VENV_DONE)" ] && [ -f "$(VENV_DONE)" ]; then echo "  ✓ venv"; elif [ -z "$(VENV_DONE)" ]; then echo "  ✓ system (Docker)"; else echo "  ✗ venv"; fi
+	@if [ -f "$(VENV_DONE)" ]; then echo "  ✓ venv"; else echo "  ✗ venv"; fi
 	@if [ -f "$(FAST_ZIP)" ]; then echo "  ✓ $(FAST_ZIP) ($$(du -h $(FAST_ZIP) | cut -f1))"; else echo "  ✗ $(FAST_ZIP)"; fi
 	@if [ -d "$(MARCXML_DIR)" ] && [ -f "$(MARCXML_DIR)/.extracted" ]; then echo "  ✓ $(MARCXML_DIR)/ ($$(ls -1 $(MARCXML_DIR)/FAST*.marcxml 2>/dev/null | wc -l | tr -d ' ') files)"; else echo "  ✗ $(MARCXML_DIR)/"; fi
 	@if [ -d "$(SKOS_DIR)" ]; then \
@@ -235,7 +217,6 @@ $(VENV_DIR)/.done:
 	@echo "═══════════════════════════════════════════════════════════════"
 	@echo "Setting up Python virtual environment"
 	@echo "═══════════════════════════════════════════════════════════════"
-ifndef DOCKER
 	@# Check for Homebrew (macOS)
 	@if command -v brew >/dev/null 2>&1; then \
 		if ! ls /opt/homebrew/opt/saxon/libexec/saxon-he-*.jar >/dev/null 2>&1; then \
@@ -249,7 +230,6 @@ ifndef DOCKER
 	fi
 	@# Check for Java
 	@command -v java >/dev/null 2>&1 || { echo "ERROR: Java not found. Install JDK."; exit 1; }
-endif
 	@python3 -m venv $(VENV_DIR)
 	@$(PIP) install --upgrade pip -q
 	@$(PIP) install datasette datasette-reconcile sqlite-utils httpx -q
@@ -458,10 +438,6 @@ help:
 	@echo "  make extract    Extract zip to $(MARCXML_DIR)/"
 	@echo "  make skos       Convert MARC XML → SKOS"
 	@echo "  make csv        Convert SKOS → CSV"
-	@echo ""
-	@echo "Docker usage:"
-	@echo "  docker compose up           Build and start service"
-	@echo "  docker compose run --rm fast make status"
 	@echo ""
 	@echo "Quick start:"
 	@echo "  make build && make serve"

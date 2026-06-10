@@ -37,22 +37,11 @@ METADATA_JSON := iso639.metadata.json
 
 PORT ?= 8001
 
-# Docker mode: when DOCKER=1, skip venv and use system Python
-DOCKER ?=
-
-ifdef DOCKER
-  PYTHON := python3
-  PIP := pip
-  DATASETTE := datasette
-  SQLITE_UTILS := sqlite-utils
-  VENV_DONE :=
-else
-  PYTHON := $(VENV_DIR)/bin/python3
-  PIP := $(VENV_DIR)/bin/pip
-  DATASETTE := $(VENV_DIR)/bin/datasette
-  SQLITE_UTILS := $(VENV_DIR)/bin/sqlite-utils
-  VENV_DONE := $(VENV_DIR)/.done
-endif
+PYTHON := $(VENV_DIR)/bin/python3
+PIP := $(VENV_DIR)/bin/pip
+DATASETTE := $(VENV_DIR)/bin/datasette
+SQLITE_UTILS := $(VENV_DIR)/bin/sqlite-utils
+VENV_DONE := $(VENV_DIR)/.done
 
 # =============================================================================
 # Main Targets
@@ -97,7 +86,7 @@ status:
 	@echo "═══════════════════════════════════════════════════════════════"
 	@echo ""
 	@echo "Files:"
-	@if [ -n "$(VENV_DONE)" ] && [ -f "$(VENV_DONE)" ]; then echo "  ✓ venv"; elif [ -z "$(VENV_DONE)" ]; then echo "  ✓ system (Docker)"; else echo "  ✗ venv"; fi
+	@if [ -f "$(VENV_DONE)" ]; then echo "  ✓ venv"; else echo "  ✗ venv"; fi
 	@if [ -f $(ISO639_2_FILE) ]; then echo "  ✓ $(ISO639_2_FILE)"; else echo "  ✗ $(ISO639_2_FILE)"; fi
 	@if [ -f $(ISO639_3_FILE) ]; then echo "  ✓ $(ISO639_3_FILE)"; else echo "  ✗ $(ISO639_3_FILE)"; fi
 	@if [ -f $(ISO639_5_FILE) ]; then echo "  ✓ $(ISO639_5_FILE)"; else echo "  ✗ $(ISO639_5_FILE)"; fi
@@ -124,9 +113,8 @@ clean-all:
 	@echo "✓ All files removed"
 
 # =============================================================================
-# Virtual Environment (skipped in Docker mode)
+# Virtual Environment
 # =============================================================================
-ifndef DOCKER
 $(VENV_DIR)/.done:
 	@echo "Setting up Python virtual environment..."
 	@python3 -m venv $(VENV_DIR)
@@ -134,7 +122,6 @@ $(VENV_DIR)/.done:
 	@$(PIP) install datasette datasette-reconcile sqlite-utils -q
 	@touch $@
 	@echo "✓ Virtual environment ready"
-endif
 
 # =============================================================================
 # Data Downloads

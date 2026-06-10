@@ -11,11 +11,6 @@
 #   make update   - Re-download source data and rebuild database
 #   make clean    - Remove database only (quick reset)
 #   make clean-all - Remove everything including downloads and venv
-#
-# Usage (Docker):
-#   Data is downloaded and the database built at IMAGE BUILD time (see
-#   Dockerfile); the runtime container serves the pre-built database directly.
-#   docker compose run --rm geonames make status   (still works in-container)
 
 # =============================================================================
 # Configuration (override with environment variables for Docker)
@@ -41,27 +36,16 @@ METADATA_JSON ?= geonames.metadata.json
 
 PORT ?= 8001
 
-# Docker mode: when DOCKER=1, skip venv and use system Python
-DOCKER ?=
-
 .PRECIOUS: $(GEONAMES_ZIP) $(GEONAMES_TXT)
 
 # =============================================================================
-# Tool paths (venv or system depending on DOCKER mode)
+# Tool paths
 # =============================================================================
-ifdef DOCKER
-  PYTHON := python3
-  PIP := pip
-  DATASETTE := datasette
-  SQLITE_UTILS := sqlite-utils
-  VENV_DONE :=
-else
-  PYTHON := $(VENV_DIR)/bin/python3
-  PIP := $(VENV_DIR)/bin/pip
-  DATASETTE := $(VENV_DIR)/bin/datasette
-  SQLITE_UTILS := $(VENV_DIR)/bin/sqlite-utils
-  VENV_DONE := $(VENV_DIR)/.done
-endif
+PYTHON := $(VENV_DIR)/bin/python3
+PIP := $(VENV_DIR)/bin/pip
+DATASETTE := $(VENV_DIR)/bin/datasette
+SQLITE_UTILS := $(VENV_DIR)/bin/sqlite-utils
+VENV_DONE := $(VENV_DIR)/.done
 
 # =============================================================================
 # Main Targets
@@ -134,11 +118,7 @@ status:
 	@echo "═══════════════════════════════════════════════════════════════"
 	@echo ""
 	@echo "Files:"
-ifdef DOCKER
-	@echo "  ✓ Docker mode (system Python)"
-else
 	@if [ -f $(VENV_DIR)/.done ]; then echo "  ✓ venv"; else echo "  ✗ venv"; fi
-endif
 	@if [ -f $(GEONAMES_ZIP) ]; then echo "  ✓ $(GEONAMES_ZIP) ($$(du -h $(GEONAMES_ZIP) | cut -f1))"; else echo "  ✗ $(GEONAMES_ZIP)"; fi
 	@if [ -f $(GEONAMES_TXT) ]; then echo "  ✓ $(GEONAMES_TXT) ($$(wc -l < $(GEONAMES_TXT) | tr -d ' ') lines)"; else echo "  ✗ $(GEONAMES_TXT)"; fi
 	@if [ -f $(SQLITE_DB) ]; then echo "  ✓ $(SQLITE_DB) ($$(du -h $(SQLITE_DB) | cut -f1))"; else echo "  ✗ $(SQLITE_DB)"; fi
@@ -154,13 +134,11 @@ endif
 			FROM geonames GROUP BY feature_class ORDER BY count DESC;"; \
 	fi
 	@echo ""
-ifndef DOCKER
 	@if [ -f $(VENV_DIR)/.done ]; then \
 		echo "Versions:"; \
 		$(PYTHON) --version | sed 's/^/  /'; \
 		$(PIP) show datasette 2>/dev/null | grep Version | sed 's/^/  datasette /'; \
 	fi
-endif
 
 .PHONY: update
 update: clean
@@ -178,18 +156,15 @@ clean:
 clean-all:
 	@echo "Removing all generated files..."
 	@rm -f $(SQLITE_DB) $(GEONAMES_ZIP) $(GEONAMES_TXT) $(FEATURE_CODES_TXT) .python-version
-ifndef DOCKER
 	@rm -rf $(VENV_DIR)
-endif
 	@echo "✓ All files removed."
 
 # =============================================================================
-# Virtual Environment (skipped in Docker mode)
+# Virtual Environment
 # =============================================================================
 .PHONY: venv
 venv: $(VENV_DONE)
 
-ifndef DOCKER
 $(VENV_DIR)/.done:
 	@echo "═══════════════════════════════════════════════════════════════"
 	@echo "Setting up Python virtual environment"
@@ -204,7 +179,6 @@ $(VENV_DIR)/.done:
 	@$(PIP) install datasette datasette-reconcile sqlite-utils csvkit httpx -q
 	@touch $@
 	@echo "✓ Virtual environment ready"
-endif
 
 # =============================================================================
 # Data Downloads
@@ -278,10 +252,6 @@ help:
 	@echo "  make clean      Remove database only"
 	@echo "  make clean-all  Remove everything including downloads and venv"
 	@echo "  make venv       Create Python virtual environment only"
-	@echo ""
-	@echo "Docker usage:"
-	@echo "  docker compose up           Build and start service"
-	@echo "  docker compose run --rm geonames make status"
 	@echo ""
 	@echo "Quick start:"
 	@echo "  make build && make serve"
