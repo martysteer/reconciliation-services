@@ -8,11 +8,13 @@ All on one port (default 8000):
 
 | Dataset | Endpoint |
 |---------|----------|
-| OCLC FAST subject headings | `/fast/FAST/-/reconcile` (+ per-facet endpoints below) |
-| GeoNames geographic features | `/geonames/geonames/-/reconcile` |
-| ISO 639 language codes | `/iso639/languages/-/reconcile` |
-| ISO 15924 script codes | `/iso15924/scripts/-/reconcile` |
-| RBMS Controlled Vocabulary | `/rbmscv/terms/-/reconcile` |
+| OCLC FAST subject headings | [`/fast/FAST/-/reconcile`](http://127.0.0.1:8000/fast/FAST/-/reconcile) (+ per-facet endpoints below) |
+| GeoNames geographic features | [`/geonames/geonames/-/reconcile`](http://127.0.0.1:8000/geonames/geonames/-/reconcile) |
+| ISO 639 language codes | [`/iso639/languages/-/reconcile`](http://127.0.0.1:8000/iso639/languages/-/reconcile) |
+| ISO 15924 script codes | [`/iso15924/scripts/-/reconcile`](http://127.0.0.1:8000/iso15924/scripts/-/reconcile) |
+| RBMS Controlled Vocabulary | [`/rbmscv/terms/-/reconcile`](http://127.0.0.1:8000/rbmscv/terms/-/reconcile) |
+
+Links assume the default port (8000) on localhost.
 
 ## Quick Start
 
@@ -56,9 +58,9 @@ All datasets: macOS or Linux with `python3` (3.10+), `curl`, `unzip`, `sqlite3`,
 
 Disk: intermediates stay in each service directory (geonames ~2GB downloads, fast ~8GB zip/MARC/SKOS/CSV); the final `.db` is *copied* to `data/`, so it exists twice while service-side copies are kept.
 
-### FAST: manual download required (Cloudflare)
+### FAST: manual download if required (Cloudflare)
 
-OCLC blocks automated downloads (the build fails within seconds if so). Download in a browser:
+OCLC sometimes blocks automated downloads (the build fails within seconds if so). Download in a browser:
 
 - https://researchworks.oclc.org/researchdata/fast/FASTAll.marcxml.zip (~198MB)
 
@@ -90,7 +92,7 @@ Sample data for testing: `services/geonames/test-data.csv` (~8000 place names in
 | `Meeting` | Conferences, symposia | "Olympic Games" |
 
 Facet-specific endpoints also exist for targeted reconciliation:
-`/fast/FASTTopical/-/reconcile`, `/fast/FASTPersonal/-/reconcile`, `/fast/FASTGeographic/-/reconcile`, `/fast/FASTCorporate/-/reconcile`, `/fast/FASTEvent/-/reconcile`, `/fast/FASTChronological/-/reconcile`, `/fast/FASTTitle/-/reconcile`, `/fast/FASTFormGenre/-/reconcile`, `/fast/FASTMeeting/-/reconcile`
+[`/fast/FASTTopical/-/reconcile`](http://127.0.0.1:8000/fast/FASTTopical/-/reconcile), [`/fast/FASTPersonal/-/reconcile`](http://127.0.0.1:8000/fast/FASTPersonal/-/reconcile), [`/fast/FASTGeographic/-/reconcile`](http://127.0.0.1:8000/fast/FASTGeographic/-/reconcile), [`/fast/FASTCorporate/-/reconcile`](http://127.0.0.1:8000/fast/FASTCorporate/-/reconcile), [`/fast/FASTEvent/-/reconcile`](http://127.0.0.1:8000/fast/FASTEvent/-/reconcile), [`/fast/FASTChronological/-/reconcile`](http://127.0.0.1:8000/fast/FASTChronological/-/reconcile), [`/fast/FASTTitle/-/reconcile`](http://127.0.0.1:8000/fast/FASTTitle/-/reconcile), [`/fast/FASTFormGenre/-/reconcile`](http://127.0.0.1:8000/fast/FASTFormGenre/-/reconcile), [`/fast/FASTMeeting/-/reconcile`](http://127.0.0.1:8000/fast/FASTMeeting/-/reconcile)
 
 ### GeoNames feature classes
 
@@ -175,16 +177,6 @@ docker buildx build --platform linux/amd64 --load -t recon-runtime:latest -f ser
 
 Refreshing one dataset later: rebuild just that `.db` on the workstation,
 scp it across, restart (`make down && make up`) — no image transfer needed.
-
-## Upgrading from per-service containers
-
-Earlier versions ran one container per dataset with data baked into each
-image. Remove them before first `make up` with this version:
-
-```bash
-docker compose -p recon down
-docker rmi recon-fast:latest recon-geonames:latest recon-isolang:latest
-```
 
 ## Adding a Dataset
 
