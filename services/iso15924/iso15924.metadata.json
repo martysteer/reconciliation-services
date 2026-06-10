@@ -1,0 +1,26 @@
+{
+  "title": "ISO 15924 Script Codes",
+  "description": "ISO 15924 codes for the representation of names of scripts, from the Unicode Consortium (ISO 15924 Registration Authority)",
+  "license": "Freely available data",
+  "license_url": "https://www.unicode.org/terms_of_use.html",
+  "source": "Unicode Consortium (ISO 15924/RA)",
+  "source_url": "https://unicode.org/iso15924/",
+  "databases": {
+    "iso15924": {
+      "tables": {
+        "scripts": {
+          "title": "ISO 15924 Script Codes",
+          "description": "Script codes with English/French names and Unicode property value aliases",
+          "plugins": {
+            "datasette-reconcile": {
+              "id_field": "id",
+              "name_field": "name",
+              "max_limit": 10,
+              "service_name": "ISO 15924 Script Codes"
+            }
+          }
+        }
+      }
+    }
+  }
+}
