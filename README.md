@@ -202,6 +202,8 @@ docker rmi recon-fast:latest recon-geonames:latest recon-isolang:latest
 - **FAST:** OCLC Research, [ODC-BY](https://opendatacommons.org/licenses/by/1-0/) — https://www.oclc.org/research/areas/data-science/fast.html
 - **GeoNames:** [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) — https://www.geonames.org/
 - **ISO 639:** Library of Congress and SIL International standards data
+- **ISO 15924:** Unicode Consortium (ISO 15924 Registration Authority), freely available data — https://unicode.org/iso15924/
+- **RBMS CV:** Library of Congress / ACRL Rare Books and Manuscripts Section — https://id.loc.gov/vocabulary/rbmscv.html
 
 ## References
 
@@ -211,3 +213,4 @@ docker rmi recon-fast:latest recon-geonames:latest recon-isolang:latest
 - [SQLite FTS5](https://sqlite.org/fts5.html)
 - [OCLC searchFAST](https://fast.oclc.org/searchfast/)
 - [ISO 639](https://www.iso.org/iso-639-language-code) / [ISO 639-2 (LOC)](https://www.loc.gov/standards/iso639-2/) / [ISO 639-3 (SIL)](https://iso639-3.sil.org/) / [ISO 639-5 (LOC)](https://www.loc.gov/standards/iso639-5/)
+- [ISO 15924 (Unicode)](https://unicode.org/iso15924/) / [RBMS CV (LOC)](https://id.loc.gov/vocabulary/rbmscv.html)
