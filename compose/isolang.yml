@@ -1,18 +1,7 @@
-name: recon-isolang
-
 services:
   isolang:
+    image: recon-isolang:latest
     build: ../services/isolang
     ports:
       - "${ISOLANG_PORT:-8003}:8001"
-    volumes:
-      - isolang-data:/app/data
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8001"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
     restart: unless-stopped
-
-volumes:
-  isolang-data:

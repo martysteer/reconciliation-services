@@ -19,6 +19,9 @@ __pycache__/
 # Data directory (all build artifacts)
 data/
 
+# Pre-downloaded source zip (Cloudflare workaround seed for Docker build)
+FASTAll.marcxml.zip
+
 # macOS
 .DS_Store
 .AppleDouble

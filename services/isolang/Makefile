@@ -37,16 +37,28 @@ METADATA_JSON := iso639.metadata.json
 
 PORT ?= 8001
 
-PYTHON := $(VENV_DIR)/bin/python3
-PIP := $(VENV_DIR)/bin/pip
-DATASETTE := $(VENV_DIR)/bin/datasette
-SQLITE_UTILS := $(VENV_DIR)/bin/sqlite-utils
+# Docker mode: when DOCKER=1, skip venv and use system Python
+DOCKER ?=
+
+ifdef DOCKER
+  PYTHON := python3
+  PIP := pip
+  DATASETTE := datasette
+  SQLITE_UTILS := sqlite-utils
+  VENV_DONE :=
+else
+  PYTHON := $(VENV_DIR)/bin/python3
+  PIP := $(VENV_DIR)/bin/pip
+  DATASETTE := $(VENV_DIR)/bin/datasette
+  SQLITE_UTILS := $(VENV_DIR)/bin/sqlite-utils
+  VENV_DONE := $(VENV_DIR)/.done
+endif
 
 # =============================================================================
 # Main Targets
 # =============================================================================
 .PHONY: build
-build: $(VENV_DIR)/.done $(SQLITE_DB)
+build: $(VENV_DONE) $(SQLITE_DB)
 	@echo ""
 	@echo "═══════════════════════════════════════════════════════════════"
 	@echo "✓ ISO 639 Reconciliation Service ready!"
@@ -59,7 +71,7 @@ build: $(VENV_DIR)/.done $(SQLITE_DB)
 	@echo "Endpoint:   http://127.0.0.1:$(PORT)/iso639/languages/-/reconcile"
 
 .PHONY: serve
-serve: $(VENV_DIR)/.done $(SQLITE_DB) $(METADATA_JSON)
+serve: $(VENV_DONE) $(SQLITE_DB) $(METADATA_JSON)
 	@echo "═══════════════════════════════════════════════════════════════"
 	@echo "ISO 639 Language Code Reconciliation Service"
 	@echo "═══════════════════════════════════════════════════════════════"
@@ -85,7 +97,7 @@ status:
 	@echo "═══════════════════════════════════════════════════════════════"
 	@echo ""
 	@echo "Files:"
-	@if [ -f $(VENV_DIR)/.done ]; then echo "  ✓ venv"; else echo "  ✗ venv"; fi
+	@if [ -n "$(VENV_DONE)" ] && [ -f "$(VENV_DONE)" ]; then echo "  ✓ venv"; elif [ -z "$(VENV_DONE)" ]; then echo "  ✓ system (Docker)"; else echo "  ✗ venv"; fi
 	@if [ -f $(ISO639_2_FILE) ]; then echo "  ✓ $(ISO639_2_FILE)"; else echo "  ✗ $(ISO639_2_FILE)"; fi
 	@if [ -f $(ISO639_3_FILE) ]; then echo "  ✓ $(ISO639_3_FILE)"; else echo "  ✗ $(ISO639_3_FILE)"; fi
 	@if [ -f $(ISO639_5_FILE) ]; then echo "  ✓ $(ISO639_5_FILE)"; else echo "  ✗ $(ISO639_5_FILE)"; fi
@@ -112,8 +124,9 @@ clean-all:
 	@echo "✓ All files removed"
 
 # =============================================================================
-# Virtual Environment
+# Virtual Environment (skipped in Docker mode)
 # =============================================================================
+ifndef DOCKER
 $(VENV_DIR)/.done:
 	@echo "Setting up Python virtual environment..."
 	@python3 -m venv $(VENV_DIR)
@@ -121,6 +134,7 @@ $(VENV_DIR)/.done:
 	@$(PIP) install datasette datasette-reconcile sqlite-utils -q
 	@touch $@
 	@echo "✓ Virtual environment ready"
+endif
 
 # =============================================================================
 # Data Downloads
@@ -146,7 +160,7 @@ $(ISO639_5_FILE): | $(DATA_DIR)
 # =============================================================================
 # Database Build
 # =============================================================================
-$(SQLITE_DB): $(VENV_DIR)/.done $(ISO639_2_FILE) $(ISO639_3_FILE) $(ISO639_5_FILE) build_db.py
+$(SQLITE_DB): $(VENV_DONE) $(ISO639_2_FILE) $(ISO639_3_FILE) $(ISO639_5_FILE) build_db.py
 	@echo ""
 	@echo "═══════════════════════════════════════════════════════════════"
 	@echo "Building SQLite database"

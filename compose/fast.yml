@@ -1,18 +1,7 @@
-name: recon-fast
-
 services:
   fast:
+    image: recon-fast:latest
     build: ../services/fast
     ports:
       - "${FAST_PORT:-8001}:8001"
-    volumes:
-      - fast-data:/app/data
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8001"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
     restart: unless-stopped
-
-volumes:
-  fast-data:

@@ -1,18 +1,7 @@
-name: recon-geonames
-
 services:
   geonames:
+    image: recon-geonames:latest
     build: ../services/geonames
     ports:
       - "${GEONAMES_PORT:-8002}:8001"
-    volumes:
-      - geonames-data:/app/data
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8001"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
     restart: unless-stopped
-
-volumes:
-  geonames-data:

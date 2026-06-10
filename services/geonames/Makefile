@@ -13,8 +13,9 @@
 #   make clean-all - Remove everything including downloads and venv
 #
 # Usage (Docker):
-#   docker compose up              - Build and serve (first run downloads data)
-#   docker compose run --rm geonames make status
+#   Data is downloaded and the database built at IMAGE BUILD time (see
+#   Dockerfile); the runtime container serves the pre-built database directly.
+#   docker compose run --rm geonames make status   (still works in-container)
 
 # =============================================================================
 # Configuration (override with environment variables for Docker)

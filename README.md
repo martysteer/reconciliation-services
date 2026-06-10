@@ -46,13 +46,70 @@ Default ports: FAST=8001, GeoNames=8002, ISO-lang=8003.
 
 ## Build Requirements
 
+All data pipelines run at **image build time** — images are fully self-contained and start instantly with no runtime downloads or transforms.
+
 Images are built on a capable machine (12-16GB RAM recommended for FAST service XSLT transform). Runtime target is Raspberry Pi 5 (8GB) or cloud.
 
 | Service | Build Time | Image Size | Data Source |
 |---------|-----------|------------|-------------|
-| isolang | < 2 min | ~150MB | LOC, SIL International |
-| geonames | ~10 min | ~3.5GB | GeoNames.org |
+| isolang | < 2 min | ~200MB | LOC, SIL International |
+| geonames | ~12 min | ~4.6GB | GeoNames.org |
 | fast | 30-60 min | ~2GB | OCLC FAST |
+
+Notes:
+
+- **FAST on Docker Desktop (macOS/Windows):** raise the Docker VM memory limit to at least 14GB (Settings → Resources) before building — the XSLT step runs Java with `-Xmx8g`. The builder stage also needs ~10GB of free Docker disk for intermediate files (zip, MARC XML, SKOS, CSV); these never reach the final image.
+- **FAST download blocked by Cloudflare:** OCLC sometimes blocks automated downloads. Download `FASTAll.marcxml.zip` manually in a browser and place it at `services/fast/FASTAll.marcxml.zip` — the Docker build picks it up automatically and skips the download.
+
+## Upgrading from per-service compose projects
+
+Earlier versions ran each service as its own compose project with named data
+volumes. Before first `make up` with this version, remove the old containers
+and volumes (data now lives inside the images):
+
+```bash
+for p in recon-fast recon-geonames recon-isolang; do docker compose -p $p down -v; done
+```
+
+## Deploying to a Pi / Server (build on laptop, copy image)
+
+The Pi 5 (8GB) cannot build the FAST or GeoNames images itself. Build on a
+workstation, export, and copy the images across — no registry needed.
+
+**1. On the laptop — build and export:**
+
+```bash
+make build                      # build all images (or SERVICES="fast")
+make save                       # exports dist/recon-<service>.tar.gz
+```
+
+**2. Copy to the target machine:**
+
+```bash
+scp dist/recon-*.tar.gz pi@raspberrypi.local:~
+```
+
+**3. On the Pi — load and run:**
+
+```bash
+docker load < recon-fast.tar.gz
+docker load < recon-geonames.tar.gz
+docker load < recon-isolang.tar.gz
+
+# from a checkout of this repo (compose files + .env only; no build happens)
+make up
+```
+
+`make up` uses the loaded `recon-<service>:latest` images directly; Docker
+Compose only builds if an image is missing.
+
+**Architecture note:** images must match the target CPU. An Apple Silicon Mac
+builds `arm64` images natively — correct for Pi 5. For an `amd64` server,
+cross-build with:
+
+```bash
+docker buildx build --platform linux/amd64 --load -t recon-isolang:latest services/isolang
+```
 
 ## Adding a Service
 
