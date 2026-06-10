@@ -19,13 +19,13 @@
 # `docker load`, then `make up` from a checkout of this repo. The .db files
 # are architecture-independent; only the (small) runtime image is per-arch.
 
-SERVICES ?= fast geonames isolang
+SERVICES ?= fast geonames isolang iso15924 rbmscv
 
 # Compose resolves the default .env against the compose file directory,
 # not the repo root, so pass it explicitly.
 COMPOSE := docker compose -p recon $(if $(wildcard .env),--env-file .env) -f compose/recon.yml
 
-.PHONY: data data-fast data-geonames data-isolang \
+.PHONY: data data-fast data-geonames data-isolang data-iso15924 data-rbmscv \
         build up down logs status save clean clean-data
 
 # Each dataset builds natively in its own directory (incremental: each
@@ -48,6 +48,16 @@ data-isolang:
 	$(MAKE) -C services/isolang build
 	@mkdir -p data
 	cp services/isolang/data/iso639.db data/iso639.db
+
+data-iso15924:
+	$(MAKE) -C services/iso15924 build
+	@mkdir -p data
+	cp services/iso15924/data/iso15924.db data/iso15924.db
+
+data-rbmscv:
+	$(MAKE) -C services/rbmscv build
+	@mkdir -p data
+	cp services/rbmscv/data/rbmscv.db data/rbmscv.db
 
 build:
 	$(COMPOSE) build
