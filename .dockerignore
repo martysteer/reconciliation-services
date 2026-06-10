@@ -1,0 +1,7 @@
+# Context for services/runtime/Dockerfile (built from the repo root).
+# Keep the context tiny: the runtime image only needs services/runtime/*
+# and services/*/*.metadata.json.
+*
+!services/runtime/serve.sh
+!services/runtime/merge_metadata.py
+!services/*/*.metadata.json
