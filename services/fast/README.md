@@ -9,7 +9,7 @@ Match subject headings against 2+ million FAST authority records with full-text 
 - **Full-text search** with [FTS5](https://sqlite.org/fts5.html) for fast, fuzzy matching
 - **Type filtering** by FAST facet (Topical, Personal, Geographic, etc.)
 - **OpenRefine compatible** via datasette-reconcile plugin
-- **Self-contained** Docker image with baked-in database, or native Python venv
+- **Self-contained** SQLite database built in Docker, or native Python venv
 - **Offline operation** - works without internet after initial setup
 - **LCSH cross-references** preserved from source data
 
@@ -17,18 +17,20 @@ Match subject headings against 2+ million FAST authority records with full-text 
 
 ### Option 1: Docker (recommended)
 
-The full data pipeline runs at **image build time** — the resulting image is
-self-contained (~2GB) and starts instantly. Build needs ~12GB RAM available
+This directory builds the dataset (`fast.db`); serving is done by the shared
+runtime container (see repo root README). The build needs ~12GB RAM available
 to Docker (Docker Desktop → Settings → Resources → Memory).
 
 ```bash
-# From the repo root (compose files live in compose/):
-make build SERVICES="fast" && make up SERVICES="fast"
+# From the repo root:
+make data SERVICES="fast"     # build data/fast.db (30-60 min)
+make build && make up         # build + start the shared runtime
 
-# Or standalone from this directory:
-docker build -t recon-fast .
-docker run -d -p 8001:8001 recon-fast
+# Or standalone from this directory (writes ../../data/fast.db):
+docker build --target export --output type=local,dest=../../data .
 ```
+
+Endpoint: `http://127.0.0.1:8000/fast/FAST/-/reconcile`
 
 ### Option 2: Native (macOS/Linux)
 
@@ -37,10 +39,7 @@ make build                  # Downloads data, creates venv, builds DB
 make serve                  # Start server
 ```
 
-The service will be available at:
-```
-http://127.0.0.1:8001/fast/FAST/-/reconcile
-```
+Endpoint: `http://127.0.0.1:8001/fast/FAST/-/reconcile`
 
 ### ⚠️ Cloudflare Download Issue
 
@@ -62,22 +61,22 @@ Then re-run the build.
 
 1. Column dropdown → **Reconcile** → **Start reconciling...**
 2. Click **Add Standard Service...**
-3. Enter: `http://127.0.0.1:8001/fast/FAST/-/reconcile`
+3. Enter the endpoint URL (port 8000 for Docker, 8001 for native)
 4. Optionally filter by type (e.g., `Topical` for subjects, `Personal` for people)
 
 ## Commands
 
 Docker commands run from the **repo root**; native commands from this directory.
-The runtime image contains only Datasette and the database (no make/Java) —
-to refresh data, rebuild the image.
+Data is exported to `data/fast.db` and served by the shared runtime —
+to refresh data, re-run `make data` and restart.
 
 | Docker (repo root) | Native | Description |
 |--------------------|--------|-------------|
-| `make build SERVICES="fast"` | `make build` | Build (data pipeline) |
-| `make up SERVICES="fast"` | `make serve` | Run |
-| `make down SERVICES="fast"` | Ctrl+C | Stop |
-| `make build SERVICES="fast"` (rebuild) | `make update` | Re-download data |
-| `make clean SERVICES="fast"` | `make clean-all` | Remove everything |
+| `make data SERVICES="fast"` | `make build` | Build (data pipeline) |
+| `make build && make up` | `make serve` | Run |
+| `make down` | Ctrl+C | Stop |
+| `make data SERVICES="fast"` (re-run) | `make update` | Re-download data |
+| `make clean && make clean-data` | `make clean-all` | Remove everything |
 | — | `make status` | Show pipeline/db stats |
 
 ## FAST Facets (Types)
@@ -98,18 +97,19 @@ Filter reconciliation by FAST facet type:
 
 ## Individual Facet Endpoints
 
-For targeted reconciliation, use facet-specific endpoints:
+For targeted reconciliation, use facet-specific endpoints (port 8000 for
+Docker, 8001 for native):
 
 ```
-http://127.0.0.1:8001/fast/FASTTopical/-/reconcile
-http://127.0.0.1:8001/fast/FASTPersonal/-/reconcile
-http://127.0.0.1:8001/fast/FASTGeographic/-/reconcile
-http://127.0.0.1:8001/fast/FASTCorporate/-/reconcile
-http://127.0.0.1:8001/fast/FASTEvent/-/reconcile
-http://127.0.0.1:8001/fast/FASTChronological/-/reconcile
-http://127.0.0.1:8001/fast/FASTTitle/-/reconcile
-http://127.0.0.1:8001/fast/FASTFormGenre/-/reconcile
-http://127.0.0.1:8001/fast/FASTMeeting/-/reconcile
+http://127.0.0.1:8000/fast/FASTTopical/-/reconcile
+http://127.0.0.1:8000/fast/FASTPersonal/-/reconcile
+http://127.0.0.1:8000/fast/FASTGeographic/-/reconcile
+http://127.0.0.1:8000/fast/FASTCorporate/-/reconcile
+http://127.0.0.1:8000/fast/FASTEvent/-/reconcile
+http://127.0.0.1:8000/fast/FASTChronological/-/reconcile
+http://127.0.0.1:8000/fast/FASTTitle/-/reconcile
+http://127.0.0.1:8000/fast/FASTFormGenre/-/reconcile
+http://127.0.0.1:8000/fast/FASTMeeting/-/reconcile
 ```
 
 ## Pipeline

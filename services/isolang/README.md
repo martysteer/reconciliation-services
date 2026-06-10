@@ -6,19 +6,19 @@ Datasette-based reconciliation service for ISO 639 language codes, compatible wi
 
 ### Option 1: Docker
 
-The data pipeline runs at **image build time** (< 2 min) — the resulting
-image is self-contained (~200MB) and starts instantly.
+This directory builds the dataset (`iso639.db`, < 2 min); serving is done by
+the shared runtime container (see repo root README).
 
 ```bash
-# From the repo root (compose files live in compose/):
-make build SERVICES="isolang" && make up SERVICES="isolang"
+# From the repo root:
+make data SERVICES="isolang"    # build data/iso639.db
+make build && make up           # build + start the shared runtime
 
-# Or standalone from this directory:
-docker build -t recon-isolang .
-docker run -d -p 8003:8001 recon-isolang
+# Or standalone from this directory (writes ../../data/iso639.db):
+docker build --target export --output type=local,dest=../../data .
 ```
 
-Endpoint: `http://127.0.0.1:8003/iso639/languages/-/reconcile`
+Endpoint: `http://127.0.0.1:8000/iso639/languages/-/reconcile`
 
 ### Option 2: Native (macOS/Linux)
 
@@ -31,7 +31,7 @@ Endpoint: `http://127.0.0.1:8001/iso639/languages/-/reconcile`
 
 ## Single Endpoint with Type Filtering
 
-**Endpoint:** `/iso639/languages/-/reconcile` (port 8003 for Docker, 8001 for native)
+**Endpoint:** `/iso639/languages/-/reconcile` (port 8000 for Docker, 8001 for native)
 
 Filter by type when reconciling:
 - **ISO 639-2** — Individual languages (~500 codes, Library of Congress)
@@ -52,7 +52,7 @@ Filter by type when reconciling:
 
 ## OpenRefine Usage
 
-1. Start the service (`make up SERVICES="isolang"` from repo root, or `make serve`)
+1. Start the service (`make up` from repo root, or `make serve`)
 2. In OpenRefine: Column → Reconcile → Start reconciling...
 3. Add Standard Service: the endpoint URL above
 4. Optionally filter by type (ISO 639-2, ISO 639-3, or ISO 639-5)
@@ -70,14 +70,15 @@ All data is downloaded from authoritative sources:
 ## Commands
 
 Docker commands run from the **repo root**; native commands from this directory.
-Data is baked into the image at build time — to refresh data, rebuild the image.
+Data is exported to `data/iso639.db` and served by the shared runtime —
+to refresh data, re-run `make data` and restart.
 
 | Docker (repo root) | Native | Description |
 |--------------------|--------|-------------|
-| `make build SERVICES="isolang"` | `make build` | Build (download datasets, build SQLite + FTS) |
-| `make up SERVICES="isolang"` | `make serve` | Run |
-| `make down SERVICES="isolang"` | Ctrl+C | Stop |
-| `make clean SERVICES="isolang"` | `make clean-all` | Remove everything |
+| `make data SERVICES="isolang"` | `make build` | Build (download datasets, build SQLite + FTS) |
+| `make build && make up` | `make serve` | Run |
+| `make down` | Ctrl+C | Stop |
+| `make clean && make clean-data` | `make clean-all` | Remove everything |
 | — | `make status` | Show data status |
 | — | `make clean` | Remove database only |
 
