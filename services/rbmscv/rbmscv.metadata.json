@@ -1,0 +1,28 @@
+{
+  "title": "RBMS Controlled Vocabulary",
+  "description": "Controlled Vocabulary for Rare Materials Cataloging (RBMS CV), published by the Library of Congress on behalf of ACRL/RBMS",
+  "license": "Public Domain",
+  "license_url": "https://www.loc.gov/legal/",
+  "source": "Library of Congress / ACRL RBMS",
+  "source_url": "https://id.loc.gov/vocabulary/rbmscv.html",
+  "databases": {
+    "rbmscv": {
+      "tables": {
+        "terms": {
+          "title": "RBMS Controlled Vocabulary Terms",
+          "description": "Rare materials cataloging terms (bindings, genres, paper, provenance, printing and publishing evidence, type evidence)",
+          "plugins": {
+            "datasette-reconcile": {
+              "id_field": "id",
+              "name_field": "name",
+              "identifierSpace": "http://id.loc.gov/vocabulary/rbmscv/",
+              "view_url": "http://id.loc.gov/vocabulary/rbmscv/{{id}}",
+              "max_limit": 10,
+              "service_name": "RBMS Controlled Vocabulary"
+            }
+          }
+        }
+      }
+    }
+  }
+}
