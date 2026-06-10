@@ -4,14 +4,34 @@ Datasette-based reconciliation service for ISO 639 language codes, compatible wi
 
 ## Quick Start
 
+### Option 1: Docker
+
+The data pipeline runs at **image build time** (< 2 min) — the resulting
+image is self-contained (~200MB) and starts instantly.
+
+```bash
+# From the repo root (compose files live in compose/):
+make build SERVICES="isolang" && make up SERVICES="isolang"
+
+# Or standalone from this directory:
+docker build -t recon-isolang .
+docker run -d -p 8003:8001 recon-isolang
+```
+
+Endpoint: `http://127.0.0.1:8003/iso639/languages/-/reconcile`
+
+### Option 2: Native (macOS/Linux)
+
 ```bash
 make build   # Setup venv + download all datasets + build database
 make serve   # Start server on port 8001
 ```
 
+Endpoint: `http://127.0.0.1:8001/iso639/languages/-/reconcile`
+
 ## Single Endpoint with Type Filtering
 
-**Endpoint:** `http://127.0.0.1:8001/iso639/languages/-/reconcile`
+**Endpoint:** `/iso639/languages/-/reconcile` (port 8003 for Docker, 8001 for native)
 
 Filter by type when reconciling:
 - **ISO 639-2** — Individual languages (~500 codes, Library of Congress)
@@ -32,9 +52,9 @@ Filter by type when reconciling:
 
 ## OpenRefine Usage
 
-1. Start the service: `make serve`
+1. Start the service (`make up SERVICES="isolang"` from repo root, or `make serve`)
 2. In OpenRefine: Column → Reconcile → Start reconciling...
-3. Add Standard Service: `http://127.0.0.1:8001/iso639/languages/-/reconcile`
+3. Add Standard Service: the endpoint URL above
 4. Optionally filter by type (ISO 639-2, ISO 639-3, or ISO 639-5)
 
 ## Data Sources
@@ -49,13 +69,17 @@ All data is downloaded from authoritative sources:
 
 ## Commands
 
-| Command | Description |
-|---------|-------------|
-| `make build` | Setup venv, download datasets, build SQLite + FTS |
-| `make serve` | Start datasette reconciliation server |
-| `make status` | Show data status |
-| `make clean` | Remove database |
-| `make clean-all` | Remove everything including venv |
+Docker commands run from the **repo root**; native commands from this directory.
+Data is baked into the image at build time — to refresh data, rebuild the image.
+
+| Docker (repo root) | Native | Description |
+|--------------------|--------|-------------|
+| `make build SERVICES="isolang"` | `make build` | Build (download datasets, build SQLite + FTS) |
+| `make up SERVICES="isolang"` | `make serve` | Run |
+| `make down SERVICES="isolang"` | Ctrl+C | Stop |
+| `make clean SERVICES="isolang"` | `make clean-all` | Remove everything |
+| — | `make status` | Show data status |
+| — | `make clean` | Remove database only |
 
 ## Database Schema
 
@@ -76,7 +100,8 @@ The `languages` table contains:
 ## Files
 
 ```
-isolang-reconciliation/
+services/isolang/
+├── Dockerfile
 ├── Makefile
 ├── README.md
 ├── build_db.py              # Database builder script
