@@ -3,7 +3,8 @@ __pycache__/
 *.py[cod]
 .venv/
 
-# Data (built at docker build time)
+# Data (built by `make data`)
+data/
 *.db
 *.db-shm
 *.db-wal

@@ -1,7 +1,0 @@
-services:
-  geonames:
-    image: recon-geonames:latest
-    build: ../services/geonames
-    ports:
-      - "${GEONAMES_PORT:-8002}:8001"
-    restart: unless-stopped

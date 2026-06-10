@@ -1,0 +1,11 @@
+services:
+  recon:
+    image: recon-runtime:latest
+    build:
+      context: ..
+      dockerfile: services/runtime/Dockerfile
+    ports:
+      - "${RECON_PORT:-8000}:8001"
+    volumes:
+      - ../data:/data:ro
+    restart: unless-stopped

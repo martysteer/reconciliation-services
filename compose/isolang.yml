@@ -1,7 +1,0 @@
-services:
-  isolang:
-    image: recon-isolang:latest
-    build: ../services/isolang
-    ports:
-      - "${ISOLANG_PORT:-8003}:8001"
-    restart: unless-stopped

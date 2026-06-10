@@ -1,7 +1,0 @@
-services:
-  fast:
-    image: recon-fast:latest
-    build: ../services/fast
-    ports:
-      - "${FAST_PORT:-8001}:8001"
-    restart: unless-stopped

@@ -1,29 +1,40 @@
-# Modular Reconciliation Services
+# Reconciliation Services -- per-dataset builders + single Datasette runtime
 #
 # Usage:
-#   make up                            Start all services
-#   make up SERVICES="fast geonames"   Start selected services
-#   make build                         Build all images (data is baked in at build time)
-#   make down                          Stop all services
-#   make logs SERVICES="fast"          Tail logs (all selected services together)
-#   make status                        Show running services
-#   make save                          Export images to dist/ for transfer (e.g. to a Pi)
-#   make clean                         Stop services and remove their images
+#   make data                          Build all dataset .db files into data/
+#   make data SERVICES="isolang"       Build selected datasets only
+#   make build                         Build the runtime image
+#   make up / down                     Start / stop the runtime
+#   make logs / status                 Inspect the runtime
+#   make save                          Export runtime image to dist/ for transfer
+#   make clean                         Stop runtime and remove its image
+#   make clean-data                    Remove built .db files
 #
-# All selected services run in a single compose project ("recon"), so
-# logs/status/down operate on them together.
+# Deploying elsewhere (e.g. Raspberry Pi): `make data && make build && make save`
+# on a workstation, copy dist/recon-runtime.tar.gz + data/*.db to the target,
+# `docker load`, then `make up` from a checkout of this repo. The .db files
+# are architecture-independent; only the (small) runtime image is per-arch.
 
 SERVICES ?= fast geonames isolang
 
-COMPOSE_FILES := $(foreach s,$(SERVICES),-f compose/$(s).yml)
-# --env-file: compose resolves the default .env against the directory of the
-# first -f file (compose/), not the repo root, so pass it explicitly.
-COMPOSE := docker compose -p recon $(if $(wildcard .env),--env-file .env) $(COMPOSE_FILES)
+# Compose resolves the default .env against the compose file directory,
+# not the repo root, so pass it explicitly.
+COMPOSE := docker compose -p recon $(if $(wildcard .env),--env-file .env) -f compose/recon.yml
 
-# Suppress "orphan containers" warnings when running a SERVICES subset
-export COMPOSE_IGNORE_ORPHANS = 1
+.PHONY: data build up down logs status save clean clean-data
 
-.PHONY: up down build logs status save clean
+# Build each dataset's .db via its builder image and export it to data/.
+# BuildKit caches the pipeline layers, so unchanged datasets re-export fast.
+data:
+	@mkdir -p data
+	@for s in $(SERVICES); do \
+		echo "==> Building dataset: $$s"; \
+		docker build --target export --output type=local,dest=data "services/$$s" || exit 1; \
+	done
+	@ls -lh data/*.db
+
+build:
+	$(COMPOSE) build
 
 up:
 	$(COMPOSE) up -d
@@ -31,27 +42,24 @@ up:
 down:
 	$(COMPOSE) down
 
-build:
-	$(COMPOSE) build
-
 logs:
 	$(COMPOSE) logs -f
 
 status:
 	$(COMPOSE) ps
 
-# Stop selected services and remove their images (fresh-build reset).
-# Add `docker builder prune` manually if you also want the build cache gone.
-clean:
-	$(COMPOSE) down --rmi all
-
-# Export built images as compressed tarballs for offline transfer
-# (build on a workstation, copy to a Pi/server, then `docker load`)
+# Export the runtime image for offline transfer. Dataset .db files are
+# transferred as plain files (scp data/*.db ...), not inside images.
 save: SHELL := /bin/bash
 save:
 	@mkdir -p dist
-	@set -euo pipefail; for s in $(SERVICES); do \
-		echo "Saving recon-$$s:latest -> dist/recon-$$s.tar.gz"; \
-		docker save "recon-$$s:latest" | gzip > "dist/recon-$$s.tar.gz"; \
-	done
+	@set -euo pipefail; \
+	echo "Saving recon-runtime:latest -> dist/recon-runtime.tar.gz"; \
+	docker save recon-runtime:latest | gzip > dist/recon-runtime.tar.gz
 	@ls -lh dist/
+
+clean:
+	$(COMPOSE) down --rmi all
+
+clean-data:
+	rm -f data/*.db
