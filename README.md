@@ -32,6 +32,8 @@ make down                            # Stop all services
 make logs                            # Tail all logs
 make logs SERVICES="fast"            # Tail one service's logs
 make status                          # Show running services
+make save                            # Export images to dist/ for transfer
+make clean                           # Stop services + remove images (fresh-build reset)
 ```
 
 ## Configuration
@@ -58,8 +60,8 @@ Images are built on a capable machine (12-16GB RAM recommended for FAST service 
 
 Notes:
 
-- **FAST on Docker Desktop (macOS/Windows):** raise the Docker VM memory limit to at least 14GB (Settings → Resources) before building — the XSLT step runs Java with `-Xmx8g`. The builder stage also needs ~10GB of free Docker disk for intermediate files (zip, MARC XML, SKOS, CSV); these never reach the final image.
-- **FAST download blocked by Cloudflare:** OCLC sometimes blocks automated downloads. Download `FASTAll.marcxml.zip` manually in a browser and place it at `services/fast/FASTAll.marcxml.zip` — the Docker build picks it up automatically and skips the download.
+- **FAST on Docker Desktop (macOS/Windows):** raise the Docker VM memory limit to at least 12GB (Settings → Resources) before building — the XSLT step runs Java with `-Xmx8g`. The builder stage also needs ~10GB of free Docker disk for intermediate files (zip, MARC XML, SKOS, CSV); these never reach the final image.
+- **FAST download blocked by Cloudflare:** OCLC blocks automated downloads (the build fails within seconds if so). Download `FASTAll.marcxml.zip` manually in a browser and place it at `services/fast/FASTAll.marcxml.zip` — the Docker build picks it up automatically and skips the download. (The error text inside the build mentions `/app/data/...` — that is the in-container path for native builds; for Docker builds use the host path above.)
 
 ## Upgrading from per-service compose projects
 

@@ -8,6 +8,7 @@
 #   make logs SERVICES="fast"          Tail logs (all selected services together)
 #   make status                        Show running services
 #   make save                          Export images to dist/ for transfer (e.g. to a Pi)
+#   make clean                         Stop services and remove their images
 #
 # All selected services run in a single compose project ("recon"), so
 # logs/status/down operate on them together.
@@ -22,7 +23,7 @@ COMPOSE := docker compose -p recon $(if $(wildcard .env),--env-file .env) $(COMP
 # Suppress "orphan containers" warnings when running a SERVICES subset
 export COMPOSE_IGNORE_ORPHANS = 1
 
-.PHONY: up down build logs status save
+.PHONY: up down build logs status save clean
 
 up:
 	$(COMPOSE) up -d
@@ -38,6 +39,11 @@ logs:
 
 status:
 	$(COMPOSE) ps
+
+# Stop selected services and remove their images (fresh-build reset).
+# Add `docker builder prune` manually if you also want the build cache gone.
+clean:
+	$(COMPOSE) down --rmi all
 
 # Export built images as compressed tarballs for offline transfer
 # (build on a workstation, copy to a Pi/server, then `docker load`)
