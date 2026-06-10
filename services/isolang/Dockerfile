@@ -1,54 +1,40 @@
-# ISO 639 Language Code Reconciliation Service
+# ISO 639 dataset builder
 #
-# Data is downloaded and the SQLite database built at IMAGE BUILD time,
-# so the resulting image is self-contained and starts instantly.
+# Builds iso639.db at IMAGE BUILD time. The final stage contains ONLY the
+# database file -- export it to the host with BuildKit:
 #
-# Build:  docker build -t recon-isolang .
-# Run:    docker run -p 8003:8001 recon-isolang
+#   docker build --target export --output type=local,dest=../../data .
+#
+# (or `make data SERVICES="isolang"` from the repo root)
+# Serving is done by the shared runtime image (services/runtime/).
 
-FROM python:3.12-slim
+FROM python:3.12-slim AS builder
 
 LABEL maintainer="SOAS Library Services"
-LABEL description="ISO 639 Language Code Reconciliation Service for OpenRefine"
+LABEL description="ISO 639 dataset builder for the reconciliation runtime"
 
-# System dependencies (make/sqlite3 are needed for the build step)
+# System dependencies for the data pipeline
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     sqlite3 \
     make \
     && rm -rf /var/lib/apt/lists/*
 
-# Python dependencies
-RUN pip install --no-cache-dir \
-    datasette==0.65.2 \
-    datasette-reconcile==0.6.3 \
-    sqlite-utils==3.39
-
-# Non-root user
-RUN useradd --create-home --uid 1000 app
+RUN pip install --no-cache-dir sqlite-utils==3.39
 
 WORKDIR /app
 
 # Selective copy keeps the build context explicit and preserves layer caching
-COPY Makefile iso639.metadata.json build_db.py ./
-
-RUN mkdir -p /app/data && chown app:app /app/data
+COPY Makefile build_db.py ./
 
 # Docker mode: use system Python, skip venv
 ENV DOCKER=1
 
-USER app
-
 # Download source data and build the database at image build time
 RUN make build
 
-EXPOSE 8001
-
-HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
-    CMD curl -f http://localhost:8001/ || exit 1
-
-# Serve the pre-built database directly (mirrors `make serve PUBLIC=1`)
-CMD ["datasette", "/app/data/iso639.db", \
-     "--metadata", "iso639.metadata.json", \
-     "--port", "8001", \
-     "--host", "0.0.0.0"]
+# =============================================================================
+# Export stage: just the database, for `docker build --output`
+# =============================================================================
+FROM scratch AS export
+COPY --from=builder /app/data/iso639.db /
