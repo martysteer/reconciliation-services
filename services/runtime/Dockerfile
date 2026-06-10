@@ -41,7 +41,9 @@ USER app
 
 EXPOSE 8001
 
-HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+# start-period generous: immutable mode counts rows at startup (the 13M-row
+# GeoNames FTS database takes ~45s on a laptop, longer on a Pi)
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
     CMD curl -f http://localhost:8001/ || exit 1
 
 CMD ["./serve.sh"]
