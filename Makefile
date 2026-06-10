@@ -1,4 +1,4 @@
-# Reconciliation Services -- per-dataset builders + single Datasette runtime
+# Reconciliation Services -- native dataset builds + single Datasette runtime
 #
 # Usage:
 #   make data                          Build all dataset .db files into data/
@@ -9,6 +9,10 @@
 #   make save                          Export runtime image to dist/ for transfer
 #   make clean                         Stop runtime and remove its image
 #   make clean-data                    Remove built .db files
+#
+# Datasets are built NATIVELY (no Docker) by each service's own Makefile,
+# then copied into data/ for the runtime to serve. See README for host
+# requirements (FAST needs Java + Saxon).
 #
 # Deploying elsewhere (e.g. Raspberry Pi): `make data && make build && make save`
 # on a workstation, copy dist/recon-runtime.tar.gz + data/*.db to the target,
@@ -21,17 +25,29 @@ SERVICES ?= fast geonames isolang
 # not the repo root, so pass it explicitly.
 COMPOSE := docker compose -p recon $(if $(wildcard .env),--env-file .env) -f compose/recon.yml
 
-.PHONY: data build up down logs status save clean clean-data
+.PHONY: data data-fast data-geonames data-isolang \
+        build up down logs status save clean clean-data
 
-# Build each dataset's .db via its builder image and export it to data/.
-# BuildKit caches the pipeline layers, so unchanged datasets re-export fast.
-data:
-	@mkdir -p data
-	@for s in $(SERVICES); do \
-		echo "==> Building dataset: $$s"; \
-		docker build --target export --output type=local,dest=data "services/$$s" || exit 1; \
-	done
+# Each dataset builds natively in its own directory (incremental: each
+# service's Makefile skips completed downloads/stages), then the .db is
+# copied to data/ for the runtime.
+data: $(addprefix data-,$(SERVICES))
 	@ls -lh data/*.db
+
+data-fast:
+	$(MAKE) -C services/fast build
+	@mkdir -p data
+	cp services/fast/data/fast.db data/fast.db
+
+data-geonames:
+	$(MAKE) -C services/geonames build
+	@mkdir -p data
+	cp services/geonames/geonames.db data/geonames.db
+
+data-isolang:
+	$(MAKE) -C services/isolang build
+	@mkdir -p data
+	cp services/isolang/data/iso639.db data/iso639.db
 
 build:
 	$(COMPOSE) build
