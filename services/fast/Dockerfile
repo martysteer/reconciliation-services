@@ -1,18 +1,18 @@
-# FAST Reconciliation Service
+# FAST dataset builder
 #
-# Multi-stage build:
-# - Stage 1 (builder): Java/Saxon runs the full data pipeline at IMAGE BUILD time
-#                      (MARC XML -> SKOS -> CSV -> SQLite)
-# - Stage 2 (runtime): minimal Python/Datasette serving the pre-built database
+# Stage 1 (builder): Java/Saxon runs the full data pipeline at IMAGE BUILD
+#                    time (MARC XML -> SKOS -> CSV -> SQLite). Needs 12-16GB
+#                    RAM available to Docker (see README).
+# Stage 2 (export):  contains ONLY fast.db -- export it to the host:
 #
-# Build requirements:
-# - 12-16GB RAM available to Docker (XSLT transformation; see README)
-# - OCLC download may be blocked by Cloudflare. If so, download
-#   FASTAll.marcxml.zip manually and place it in this directory
-#   (services/fast/) before building -- it will be picked up automatically.
+#   docker build --target export --output type=local,dest=../../data .
 #
-# Build:  docker build -t recon-fast .
-# Run:    docker run -p 8001:8001 recon-fast
+# (or `make data SERVICES="fast"` from the repo root)
+# Serving is done by the shared runtime image (services/runtime/).
+#
+# OCLC download may be blocked by Cloudflare. If so, download
+# FASTAll.marcxml.zip manually and place it in this directory
+# (services/fast/) before building -- it will be picked up automatically.
 
 # =============================================================================
 # Stage 1: Builder -- Java/Saxon XSLT pipeline, produces /app/data/fast.db
@@ -47,7 +47,7 @@ WORKDIR /app
 # Copy build files. The FASTAll.marcxml.zi[p] glob makes the zip OPTIONAL:
 # if you pre-downloaded it (Cloudflare workaround) it is used, otherwise
 # the Makefile downloads it.
-COPY Makefile fast.metadata.json FASTAll.marcxml.zi[p] ./
+COPY Makefile FASTAll.marcxml.zi[p] ./
 COPY xslt/ ./xslt/
 
 # Environment for Docker build mode
@@ -65,44 +65,7 @@ RUN mkdir -p /app/data && \
     make build
 
 # =============================================================================
-# Stage 2: Runtime -- Python/Datasette only (no Java, no Saxon, no make)
+# Stage 2: Export -- just the database, for `docker build --output`
 # =============================================================================
-FROM python:3.12-slim
-
-LABEL maintainer="SOAS Library Services"
-LABEL description="FAST Reconciliation Service for OpenRefine"
-
-# curl needed for the healthcheck only
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    curl \
-    && rm -rf /var/lib/apt/lists/*
-
-RUN pip install --no-cache-dir \
-    datasette==0.65.2 \
-    datasette-reconcile==0.6.3
-
-# Non-root user
-RUN useradd --create-home --uid 1000 app
-
-WORKDIR /app
-
-COPY fast.metadata.json ./
-
-# Data dir must be writable by app (SQLite -wal/-shm files)
-RUN mkdir -p /app/data && chown app:app /app/data
-COPY --from=builder --chown=app:app /app/data/fast.db /app/data/fast.db
-
-USER app
-
-EXPOSE 8001
-
-HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
-    CMD curl -f http://localhost:8001/ || exit 1
-
-# Serve the pre-built database directly (mirrors `make serve PUBLIC=1`)
-CMD ["datasette", "/app/data/fast.db", \
-     "--metadata", "fast.metadata.json", \
-     "--port", "8001", \
-     "--host", "0.0.0.0", \
-     "--setting", "sql_time_limit_ms", "5000", \
-     "--setting", "max_returned_rows", "1000"]
+FROM scratch AS export
+COPY --from=builder /app/data/fast.db /
