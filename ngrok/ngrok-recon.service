@@ -5,9 +5,10 @@
 #   sudo systemctl daemon-reload
 #   sudo systemctl enable --now ngrok-recon
 #
-# IMPORTANT: edit User= below to match the account that owns ~/.config/ngrok/ngrok.yml
-# (usually the same user that runs your Docker stack). The %h specifier expands to
-# that user's home directory.
+# IMPORTANT: User= and the --config path must match the account that owns
+# ~/.config/ngrok/ngrok.yml (the same user that runs your Docker stack).
+# Note: %h is NOT used here because in a system unit it resolves to /root
+# regardless of User=, so the config path is hardcoded to the user's home.
 
 [Unit]
 Description=ngrok tunnel for reconciliation-services
@@ -18,7 +19,7 @@ Requires=docker.service
 [Service]
 Type=simple
 User=doozer
-ExecStart=/usr/local/bin/ngrok start --all --config %h/.config/ngrok/ngrok.yml
+ExecStart=/usr/local/bin/ngrok start --all --config /home/doozer/.config/ngrok/ngrok.yml
 Restart=on-failure
 RestartSec=10
 
