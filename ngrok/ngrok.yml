@@ -1,0 +1,30 @@
+# ngrok agent configuration (v3) for the reconciliation-services runtime
+# Docs: https://ngrok.com/docs/agent/config/v3/
+#
+# The Docker service publishes on host port ${RECON_PORT:-8000} (see compose/recon.yml),
+# so the tunnel forwards to localhost:8000.
+#
+# Install location on the Pi: ~/.config/ngrok/ngrok.yml
+# (or point at it explicitly with: ngrok start --all --config /path/to/ngrok.yml)
+
+version: 3
+
+agent:
+  # Get yours at https://dashboard.ngrok.com/get-started/your-authtoken
+  # Prefer setting this once via `ngrok config add-authtoken <TOKEN>` instead of
+  # committing it here. Left blank so no secret lands in git.
+  authtoken: ""
+  log: /var/log/ngrok.log
+  log_format: logfmt
+  log_level: info
+
+endpoints:
+  - name: recon
+    description: "reconciliation-services runtime"
+    # Free Dev Domain: your account gets one fixed, auto-assigned URL that
+    # survives restarts/reboots. Find yours at https://dashboard.ngrok.com/domains
+    # and paste it below (keep the https:// scheme). Example:
+    #   url: https://lively-otter-1234.ngrok-free.app
+    url: https://YOUR-DEV-DOMAIN.ngrok-free.app
+    upstream:
+      url: 8000
