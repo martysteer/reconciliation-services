@@ -14,7 +14,10 @@ agent:
   # Prefer setting this once via `ngrok config add-authtoken <TOKEN>` instead of
   # committing it here. Left blank so no secret lands in git.
   authtoken: ""
-  log: /var/log/ngrok.log
+  # Log to stderr so it's captured by systemd's journal (journalctl -u ngrok-recon)
+  # and works when running as a non-root user. Use a file path only if that path
+  # is writable by the user ngrok runs as.
+  log: stderr
   log_format: logfmt
   log_level: info
 
