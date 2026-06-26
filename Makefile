@@ -19,14 +19,14 @@
 # `docker load`, then `make up` from a checkout of this repo. The .db files
 # are architecture-independent; only the (small) runtime image is per-arch.
 
-SERVICES ?= fast geonames isolang iso15924 rbmscv
+SERVICES ?= fast geonames isolang iso15924 rbmscv problemlcsh
 
 # Compose resolves the default .env against the compose file directory,
 # not the repo root, so pass it explicitly.
 COMPOSE := docker compose -p recon $(if $(wildcard .env),--env-file .env) -f compose/recon.yml
 
 .PHONY: data data-fast data-geonames data-isolang data-iso15924 data-rbmscv \
-        build up down logs status save clean clean-data
+        data-problemlcsh build up down logs status save clean clean-data
 
 # Each dataset builds natively in its own directory (incremental: each
 # service's Makefile skips completed downloads/stages), then the .db is
@@ -58,6 +58,11 @@ data-rbmscv:
 	$(MAKE) -C services/rbmscv build
 	@mkdir -p data
 	cp services/rbmscv/data/rbmscv.db data/rbmscv.db
+
+data-problemlcsh:
+	$(MAKE) -C services/problemlcsh build
+	@mkdir -p data
+	cp services/problemlcsh/data/problemlcsh.db data/problemlcsh.db
 
 build:
 	$(COMPOSE) build

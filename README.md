@@ -13,6 +13,7 @@ All on one port (default 8000):
 | ISO 639 language codes | [`/iso639/languages/-/reconcile`](http://127.0.0.1:8000/iso639/languages/-/reconcile) |
 | ISO 15924 script codes | [`/iso15924/scripts/-/reconcile`](http://127.0.0.1:8000/iso15924/scripts/-/reconcile) |
 | RBMS Controlled Vocabulary | [`/rbmscv/terms/-/reconcile`](http://127.0.0.1:8000/rbmscv/terms/-/reconcile) |
+| Problem LCSH | [`/problemlcsh/headings/-/reconcile`](http://127.0.0.1:8000/problemlcsh/headings/-/reconcile) |
 
 Links assume the default port (8000) on localhost.
 
@@ -53,6 +54,7 @@ All datasets: macOS or Linux with `python3` (3.10+), `curl`, `unzip`, `sqlite3`,
 | isolang | < 2 min | ~3MB | LOC, SIL International | public standards data |
 | iso15924 | < 1 min | < 1MB | Unicode Consortium | freely available data |
 | rbmscv | < 1 min | < 1MB | LOC id.loc.gov / ACRL RBMS | public domain |
+| problemlcsh | < 1 min | < 1MB | Cataloging Lab | CC BY-NC-SA 4.0 |
 | geonames | ~12 min | ~4GB | GeoNames.org | CC BY 4.0 |
 | fast | 30-60 min | ~1.5GB | OCLC FAST | ODC-BY |
 
@@ -196,6 +198,7 @@ scp it across, restart (`make down && make up`) — no image transfer needed.
 - **ISO 639:** Library of Congress and SIL International standards data
 - **ISO 15924:** Unicode Consortium (ISO 15924 Registration Authority), freely available data — https://unicode.org/iso15924/
 - **RBMS CV:** Library of Congress / ACRL Rare Books and Manuscripts Section — https://id.loc.gov/vocabulary/rbmscv.html
+- **Problem LCSH:** Cataloging Lab, [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/) — https://cataloginglab.org/problem-lcsh/
 
 ## References
 
@@ -205,4 +208,4 @@ scp it across, restart (`make down && make up`) — no image transfer needed.
 - [SQLite FTS5](https://sqlite.org/fts5.html)
 - [OCLC searchFAST](https://fast.oclc.org/searchfast/)
 - [ISO 639](https://www.iso.org/iso-639-language-code) / [ISO 639-2 (LOC)](https://www.loc.gov/standards/iso639-2/) / [ISO 639-3 (SIL)](https://iso639-3.sil.org/) / [ISO 639-5 (LOC)](https://www.loc.gov/standards/iso639-5/)
-- [ISO 15924 (Unicode)](https://unicode.org/iso15924/) / [RBMS CV (LOC)](https://id.loc.gov/vocabulary/rbmscv.html)
+- [ISO 15924 (Unicode)](https://unicode.org/iso15924/) / [RBMS CV (LOC)](https://id.loc.gov/vocabulary/rbmscv.html) / [Problem LCSH (Cataloging Lab)](https://cataloginglab.org/problem-lcsh/)

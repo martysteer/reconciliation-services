@@ -1,0 +1,26 @@
+{
+  "title": "Problem LCSH",
+  "description": "Problematic Library of Congress Subject Headings identified by the cataloging community",
+  "license": "CC BY-NC-SA 4.0",
+  "license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+  "source": "Cataloging Lab",
+  "source_url": "https://cataloginglab.org/problem-lcsh/",
+  "databases": {
+    "problemlcsh": {
+      "tables": {
+        "headings": {
+          "title": "Problem LCSH",
+          "description": "Problematic LCSH headings with suggested alternatives",
+          "plugins": {
+            "datasette-reconcile": {
+              "id_field": "id",
+              "name_field": "name",
+              "max_limit": 10,
+              "service_name": "Problem LCSH"
+            }
+          }
+        }
+      }
+    }
+  }
+}
