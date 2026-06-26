@@ -14,6 +14,7 @@ All on one port (default 8000):
 | ISO 15924 script codes | [`/iso15924/scripts/-/reconcile`](http://127.0.0.1:8000/iso15924/scripts/-/reconcile) |
 | RBMS Controlled Vocabulary | [`/rbmscv/terms/-/reconcile`](http://127.0.0.1:8000/rbmscv/terms/-/reconcile) |
 | Problem LCSH | [`/problemlcsh/headings/-/reconcile`](http://127.0.0.1:8000/problemlcsh/headings/-/reconcile) |
+| Chinese Library Classification (CLC) | [`/clc/classes/-/reconcile`](http://127.0.0.1:8000/clc/classes/-/reconcile) |
 
 Links assume the default port (8000) on localhost.
 
@@ -55,6 +56,7 @@ All datasets: macOS or Linux with `python3` (3.10+), `curl`, `unzip`, `sqlite3`,
 | iso15924 | < 1 min | < 1MB | Unicode Consortium | freely available data |
 | rbmscv | < 1 min | < 1MB | LOC id.loc.gov / ACRL RBMS | public domain |
 | problemlcsh | < 1 min | < 1MB | Cataloging Lab | CC BY-NC-SA 4.0 |
+| clc | < 1 min | ~5MB | acdzh/GitHub + Wikimedia Commons | non-commercial + CC BY-SA |
 | geonames | ~12 min | ~4GB | GeoNames.org | CC BY 4.0 |
 | fast | 30-60 min | ~1.5GB | OCLC FAST | ODC-BY |
 
@@ -119,6 +121,16 @@ Facet-specific endpoints also exist for targeted reconciliation:
 | `ISO 639-5` | Language families/groups (~115 codes) | Library of Congress |
 
 Codes are unique across the database: if a code exists in multiple parts (e.g. `eng`), it appears once with the type from the first standard that defined it (639-2 takes precedence).
+
+### CLC divisions
+
+| Type | Main Classes | Description |
+|------|-------------|-------------|
+| `Social Sciences` | C-K | Politics, Law, Economics, Education, etc. |
+| `Natural Sciences` | N-X | Math, Physics, Engineering, Medicine, etc. |
+| `Philosophy` | B | Philosophy, Religion, Psychology |
+| `Marxism` | A | Works of Marx, Engels, Lenin, Mao, Deng |
+| `Comprehensive` | Z | Encyclopedias, Bibliographies, General Works |
 
 ## Developing a Single Dataset
 
@@ -199,6 +211,7 @@ scp it across, restart (`make down && make up`) — no image transfer needed.
 - **ISO 15924:** Unicode Consortium (ISO 15924 Registration Authority), freely available data — https://unicode.org/iso15924/
 - **RBMS CV:** Library of Congress / ACRL Rare Books and Manuscripts Section — https://id.loc.gov/vocabulary/rbmscv.html
 - **Problem LCSH:** Cataloging Lab, [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/) — https://cataloginglab.org/problem-lcsh/
+- **CLC:** [acdzh/Chinese-Library-Classification](https://github.com/acdzh/Chinese-Library-Classification) (non-commercial) + [Wikimedia Commons](https://commons.wikimedia.org/wiki/Module:Library_classification_navigation/CLC/CategoryTitleTable.json) ([CC BY-SA](https://creativecommons.org/licenses/by-sa/4.0/))
 
 ## References
 
@@ -209,3 +222,4 @@ scp it across, restart (`make down && make up`) — no image transfer needed.
 - [OCLC searchFAST](https://fast.oclc.org/searchfast/)
 - [ISO 639](https://www.iso.org/iso-639-language-code) / [ISO 639-2 (LOC)](https://www.loc.gov/standards/iso639-2/) / [ISO 639-3 (SIL)](https://iso639-3.sil.org/) / [ISO 639-5 (LOC)](https://www.loc.gov/standards/iso639-5/)
 - [ISO 15924 (Unicode)](https://unicode.org/iso15924/) / [RBMS CV (LOC)](https://id.loc.gov/vocabulary/rbmscv.html) / [Problem LCSH (Cataloging Lab)](https://cataloginglab.org/problem-lcsh/)
+- [Chinese Library Classification (CLC)](https://www.clcindex.com/) / [acdzh/Chinese-Library-Classification](https://github.com/acdzh/Chinese-Library-Classification)

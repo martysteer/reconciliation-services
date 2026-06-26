@@ -1,0 +1,35 @@
+{
+  "title": "Chinese Library Classification",
+  "description": "Chinese Library Classification (CLC / \u4e2d\u56fe\u6cd5), China's national library classification system, 5th edition",
+  "license": "Non-commercial (acdzh/GitHub) + CC BY-SA (Wikimedia Commons)",
+  "license_url": "https://github.com/acdzh/Chinese-Library-Classification/blob/master/LICENSE",
+  "source": "acdzh/Chinese-Library-Classification + Wikimedia Commons",
+  "source_url": "https://github.com/acdzh/Chinese-Library-Classification",
+  "databases": {
+    "clc": {
+      "tables": {
+        "classes": {
+          "title": "Chinese Library Classification",
+          "description": "CLC categories (5th edition, ~45K entries). Use type filter to narrow by division.",
+          "plugins": {
+            "datasette-reconcile": {
+              "id_field": "id",
+              "name_field": "name",
+              "type_field": "division",
+              "type_default": [
+                {"id": "Social Sciences", "name": "Social Sciences (C-K: Politics, Law, Economics, Education, etc.)"},
+                {"id": "Natural Sciences", "name": "Natural Sciences (N-X: Math, Physics, Engineering, Medicine, etc.)"},
+                {"id": "Philosophy", "name": "Philosophy (B: Philosophy, Religion, Psychology)"},
+                {"id": "Marxism", "name": "Marxism (A: Works of Marx, Engels, Lenin, Mao, Deng)"},
+                {"id": "Comprehensive", "name": "Comprehensive (Z: Encyclopedias, Bibliographies, General Works)"}
+              ],
+              "max_limit": 10,
+              "service_name": "Chinese Library Classification",
+              "view_url": "https://www.clcindex.com/category/{{id}}/"
+            }
+          }
+        }
+      }
+    }
+  }
+}
